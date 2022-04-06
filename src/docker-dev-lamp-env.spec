@@ -4,7 +4,7 @@
 block_cipher = None
 
 
-a = Analysis(['src/docker-dev-lamp-env.py'],
+a = Analysis(['docker-dev-lamp-env.py'],
              pathex=[],
              binaries=[],
              datas=[],
