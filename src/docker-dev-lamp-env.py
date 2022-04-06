@@ -1,6 +1,9 @@
 
 import yaml
 import os
+from git import Repo
+from git import RemoteProgress
+from tqdm import tqdm
 
 dockerComposeDir = f'docker-compose'
 nginxConfDir = f'{dockerComposeDir}/nginx'
@@ -84,6 +87,19 @@ data = {
         }
     }}
     
+## Source: https://localcoder.org/python-progress-bar-for-git-clone
+
+class CloneProgress(RemoteProgress):
+    def __init__(self):
+        super().__init__()
+        self.pbar = tqdm()
+
+    def update(self, op_code, cur_count, max_count=None, message=''):
+        self.pbar.total = max_count
+        self.pbar.n = cur_count
+        self.pbar.refresh()
+
+
 def generateFileWithPath(path,content,lines=False,isYaml=False):
     os.makedirs(os.path.dirname(path),exist_ok=True)
     with open(path, 'w') as f:
@@ -100,7 +116,7 @@ print('Gerando arquivo docker.compose.yml\n')
 
 generateFileWithPath(dockerComposeFile,data,False,True)
 
-print('Gerando arquivo .env\n')
+print('Gerando arquivo .env do ambiente docker\n')
 
 generateFileWithPath(envFile,[
         "DB_HOST=db\n", 
@@ -147,4 +163,9 @@ post_max_size = 500M
 
 print(f'Clonando repositório {gitRepoUrl}\n')
 
-os.system(f"git clone {gitRepoUrl} {appName}/app")
+Repo.clone_from(gitRepoUrl, f"{appName}/app",progress=CloneProgress())
+
+print(f'\n Seu ambiente PHP foi criado com sucesso. Acesse a pasta {appName}\n')
+
+
+##os.system(f"git clone {gitRepoUrl} {appName}/app")
