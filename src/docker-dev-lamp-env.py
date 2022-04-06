@@ -33,8 +33,7 @@ data = {
                 'restart': 'unless-stopped',
                 'volumes': [
                     './app:/var/www/app',
-                    './.docker-compose/php-fpm/custom.ini:/usr/local/etc/php/conf.d/custom.ini',
-                    './.docker-compose/php-fpm/xdebug.ini:/usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini'
+                    './docker-compose/php-fpm/custom.ini:/usr/local/etc/php/conf.d/custom.ini',
                 ],
                 'working_dir': '/var/www/app'
             },
@@ -56,7 +55,7 @@ data = {
                      'restart': 'unless-stopped',
                      'tty': True,
                      'volumes': [
-                         './.docker-compose/mysql:/docker-entrypoint-initdb.d',
+                         './docker-compose/mysql:/docker-entrypoint-initdb.d',
                          f'{appName}MysqlData:/var/lib/mysql'
                          ]
                 },
@@ -69,7 +68,7 @@ data = {
                     'restart': 'unless-stopped',
                     'volumes': [
                         './app:/var/www/app',
-                        './.docker-compose/nginx:/etc/nginx/conf.d/'
+                        './docker-compose/nginx:/etc/nginx/conf.d/'
                     ],
                     'working_dir': '/var/www/app'
                 }
@@ -125,7 +124,6 @@ generateFileWithPath(envFile,[
         f"DB_DATABASE={appName}\n",
         f"DB_USERNAME={appName}\n",
         f'DB_PASSWORD={appName}\n',
-        'DB_TIMEZONE=+00:00',
         ],True)
 
 print('Criando app.conf do nginx\n')
@@ -160,6 +158,8 @@ upload_max_filesize = 500m
 max_execution_time = 5600
 post_max_size = 500M
 """)
+
+generateFileWithPath(f'{appName}/{mysqlDir}/dump.sql',"""""")
 
 print(f'Clonando repositório {gitRepoUrl}\n')
 
