@@ -1,4 +1,24 @@
-# Docker Environment Generator with Docker Compose for PHP Applications
+ Docker Environment Generator with Docker Compose for PHP Applications
+
+## Description:
+
+This repository provides a Docker environment generator powered by Docker Compose specifically tailored for PHP applications. Whether you're working on a small project or a large-scale application, setting up your development environment can be time-consuming. With this tool, you can quickly generate a boilerplate environment configured with Docker Compose, allowing you to focus on coding rather than environment setup.
+
+### Features:
+- **Platform Support:** Works seamlessly on Windows and Linux platforms.
+- **Easy Setup:** Download the executable, provide necessary inputs, and let the tool do the rest.
+- **Flexible Configuration:** Choose the PHP-FPM version and customize your environment based on your project's requirements.
+- **Pre-configured Services:** Includes MySQL and Nginx configurations to kickstart your development process.
+- **Command Line Interface:** Interact with the tool via command line, making it convenient for developers.
+
+### How to Use:
+1. Download the executable for your platform from the provided links.
+2. Extract and execute the executable in your project folder.
+3. Follow the prompts to input necessary information, such as PHP-FPM version and Git repository URL.
+4. Once generated, you'll have a ready-to-use Docker environment for your PHP application.
+5. Use `docker-compose up` command to run the project, and execute additional commands inside containers using `docker-compose exec`.
+
+## Steps
 
 ### 1. Download the Executable for the solution according to your platform
 
@@ -97,3 +117,9 @@ docker-compose exec app composer install
 ```
 docker-compose exec app php artisan
 ```
+
+### Contribution:
+Contributions are welcome! If you have any ideas to improve this tool or encounter any issues, feel free to open an issue or submit a pull request.
+
+### Credits:
+This project is maintained by ejklock and is inspired by the need for an efficient Docker environment setup for PHP development.
