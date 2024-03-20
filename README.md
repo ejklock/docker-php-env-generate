@@ -1,11 +1,11 @@
-# Gerador de Ambiente Docker com Docker Compose para Aplicações PHP
+# Docker Environment Generator with Docker Compose for PHP Applications
 
-### 1. Baixar o Executavel da solução acordo com sua plataforma
+### 1. Download the Executable for the solution according to your platform
 
-* Windows <https://github.com/ejklock/docker-lamp-template-generate/suites/5962362674/artifacts/204842095>
-* Linux <https://github.com/ejklock/docker-lamp-template-generate/suites/5962362674/artifacts/204842094>
+* Windows [Download here](https://github.com/ejklock/docker-lamp-template-generate/suites/5962362674/artifacts/204842095)
+* Linux [Download here](https://github.com/ejklock/docker-lamp-template-generate/suites/5962362674/artifacts/204842094)
 
-### 2. Extrair e copiar o exectavel para sua pasta de projetos e executar via terminal (cmd, powershell e variantes)
+### 2. Extract and copy the executable to your project folder and execute it via terminal (cmd, powershell, and variants)
 
 * ### Linux
   ```
@@ -20,80 +20,80 @@
   ```
    docker-dev-lamp-env
   ```
-  ### 3. Infomar as entradas exigidas pelo prompt e a url do repositorio (.git no fim da url)
+  ### 3. Provide the required inputs through the prompt and the repository URL (.git at the end of the URL)
   
-  1. Nome e  Imagem do dockerhub do php-fpm
+  1. Name and DockerHub image of php-fpm
 
 
-     O autor do projeto disponibiliza  [algumas imagens com as mais diferentes versões do php](https://registry.hub.docker.com/r/ejklock/php-fpm/tags), incluido composer e varias extensões do php por padrão (5.6, 7.3 e 7.4) bastando apenas especificar a versão desejada (ex: ejklock/php-fpm:7.3 ou ejklock/php-fpm:7.4)
+     The project author provides [several images with different PHP versions](https://registry.hub.docker.com/r/ejklock/php-fpm/tags), including Composer and various PHP extensions by default (5.6, 7.3, and 7.4), you just need to specify the desired version (e.g., ejklock/php-fpm:7.3 or ejklock/php-fpm:7.4).
   
    ![image](https://user-images.githubusercontent.com/8179907/175052410-a5dd25cd-794f-4f0e-8ee9-f4a05f3cca4c.png)
  
- 2. Url do repositório git do projeto (necessária chave .ssh configurada)
+ 2. Git repository URL of the project (SSH key configuration required)
 
    ![image](https://user-images.githubusercontent.com/8179907/175055257-98c9d78d-f71c-4451-8053-e1bf43b887ce.png)
 
 
-### 4. Estrutura da gerada
+### 4. Generated structure
 
-O script gerará um boilerplate para a aplicação pronta para rodar.
+The script will generate a boilerplate for the application ready to run.
 
 ![image](https://user-images.githubusercontent.com/8179907/175055670-9a8d7832-49c9-48a8-902a-545a949b5544.png)
 
- 1. Pasta app
+ 1. App folder
     
-    Nessa pasta fica o codigo clonado da aplicação. É aqui vocẽ irá trabalar
+    This folder contains the cloned code of the application. This is where you will work.
  
- 2. Pasta docker-compose
+ 2. Docker-compose folder
     
-    Nessa pasta ficam alguns arquivos configuraveis da estrutura em geral
+    This folder contains some configurable files of the structure in general
     
-    1. Pasta mysql
+    1. MySQL folder
        
-       Nessa pasta você (antes de levantar o container da aplicação pela primeira vez) pode colocar o script do banco para que o container restaure um banco ja existente no seu banco de desenvolvimento. Basta apagar esse arquivo exemplo ou adicionar conteúdo nele
+       In this folder, you (before bringing up the application container for the first time) can place the database script so that the container restores an existing database in your development environment. Just delete this example file or add content to it.
        
-    2 . Pasta nginx
+    2 . Nginx folder
       
-      Nessa pasta ficam as configurações sobre o web server nginx. Para mais detalhes sobre o arquivo de configuração acesse <https://www.nginx.com/>
+      This folder contains configurations for the Nginx web server. For more details on the configuration file, visit <https://www.nginx.com/>.
       
-    3 . Pasta php-fpm
+    3 . PHP-FPM folder
       
-      Nessa pasta fica um arquivo custom.ini que é onde podemos colocar as configurações do php que serão sobrescritas (php.ini)
+      This folder contains a custom.ini file where we can put PHP configurations that will be overridden (php.ini).
       
- 4. Pasta raiz do boilerplate gerado
+ 4. Root folder of the generated boilerplate
   
-    Na pasta raiz você encontrará 2 arquivos:
+    In the root folder, you will find 2 files:
    
     1. ".env"
       
-      O arquivo ".env" do boilerplate você controla algumas variaveis de ambiente como usuario do banco, senha, porta  etc
+      The ".env" file of the boilerplate controls some environment variables such as database user, password, port, etc.
       
     2. docker-compose.yml
 
-      Esse é o arquivo de configuração do docker-compose onde são descritos os serviços e configurações a serem levantados pelo docker. Mais informações consultar a documentação do docker-compose <https://docs.docker.com/compose/>   
+      This is the docker-compose configuration file where the services and configurations to be brought up by Docker are described. For more information, consult the Docker Compose documentation <https://docs.docker.com/compose/>.   
 
-### 4. Rodando o projeto
+### 4. Running the project
 
-Para rodar o projeto basta, na raiz do boilerplate gerado (fora da pasta app) rodar:
+To run the project, simply, in the root of the generated boilerplate (outside the app folder), run:
 
 ```
 docker-compose up
 ```
-### 5. Rodando comandos dentro dos containeres
+### 5. Running commands inside containers
 
-O docker permite você executar comandos dentro dos containeres para fazer algumas ações. 
+Docker allows you to execute commands inside containers to perform some actions.
 
 ```
-docker-compose exec <nome_do_servico_no_arquivo_docker-compose.yml> <seu_comando>
+docker-compose exec <service_name_in_docker-compose.yml_file> <your_command>
 ```
 
-1. Rodar o composer install no serviço app:
+1. Run composer install on the app service:
 
 ```
 docker-compose exec app composer install
 ```
 
-2. Rodar um comando do php/laravel no serviço app:
+2. Run a PHP/Laravel command on the app service:
 ```
 docker-compose exec app php artisan
 ```
