@@ -32,7 +32,7 @@ data = {
                 ],
                 'restart': 'unless-stopped',
                 'volumes': [
-                    './app:/var/www/app',
+                    './:/var/www/app',
                     './docker-compose/php-fpm/custom.ini:/usr/local/etc/php/conf.d/custom.ini',
                 ],
                 'working_dir': '/var/www/app'
@@ -42,16 +42,16 @@ data = {
                     'command': '--default-authentication-plugin=mysql_native_password',
                     'container_name': f'{appName}-dev-db',
                     'environment': {
-                        'MYSQL_DATABASE': '${DB_DATABASE}',
-                        'MYSQL_PASSWORD': '${DB_PASSWORD}',
-                        'MYSQL_ROOT_PASSWORD': '${DB_PASSWORD}',
-                        'MYSQL_USER': '${DB_USERNAME}',
+                        'MYSQL_DATABASE': f'{appName}',
+                        'MYSQL_PASSWORD':  f'{appName}',
+                        'MYSQL_ROOT_PASSWORD':  f'{appName}',
+                        'MYSQL_USER':  f'{appName}',
                         'SERVICE_NAME': 'mysql',
                         'SERVICE_TAGS': 'dev'
                         },
                      'image': 'mysql:5.7',
                      'networks': [f'{appName}Network'],
-                     'ports': ['${DB_EXTERNAL_PORT}:${DB_PORT}'],
+                     'ports': '33306:3306',
                      'restart': 'unless-stopped',
                      'tty': True,
                      'volumes': [
@@ -67,7 +67,7 @@ data = {
                     'ports': ['8000:80'],
                     'restart': 'unless-stopped',
                     'volumes': [
-                        './app:/var/www/app',
+                        './:/var/www/app',
                         './docker-compose/nginx:/etc/nginx/conf.d/'
                     ],
                     'working_dir': '/var/www/app'
@@ -115,16 +115,16 @@ print('Gerando arquivo docker.compose.yml\n')
 
 generateFileWithPath(dockerComposeFile,data,False,True)
 
-print('Gerando arquivo .env do ambiente docker\n')
+# print('Gerando arquivo .env do ambiente docker\n')
 
-generateFileWithPath(envFile,[
-        "DB_HOST=db\n", 
-        "DB_PORT=3306\n",
-        "DB_EXTERNAL_PORT=33306\n",
-        f"DB_DATABASE={appName}\n",
-        f"DB_USERNAME={appName}\n",
-        f'DB_PASSWORD={appName}\n',
-        ],True)
+# generateFileWithPath(envFile,[
+#         "DB_HOST=db\n", 
+#         "DB_PORT=3306\n",
+#         "DB_EXTERNAL_PORT=33306\n",
+#         f"DB_DATABASE={appName}\n",
+#         f"DB_USERNAME={appName}\n",
+#         f'DB_PASSWORD={appName}\n',
+#         ],True)
 
 print('Criando app.conf do nginx\n')
 
@@ -165,9 +165,9 @@ generateFileWithPath(f'{appName}/{mysqlDir}/dump.sql',"""""")
 
 print(f'Clonando repositório {gitRepoUrl}\n')
 
-Repo.clone_from(gitRepoUrl, f"{appName}/app",progress=CloneProgress())
+Repo.clone_from(gitRepoUrl, f"{appName}",progress=CloneProgress())
 
 print(f'\n Seu ambiente PHP foi criado com sucesso. Acesse a pasta {appName}\n')
 
 
-##os.system(f"git clone {gitRepoUrl} {appName}/app")
+##os.system(f"git clone {gitRepoUrl} {appName}")
