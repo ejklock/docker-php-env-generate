@@ -116,7 +116,6 @@ print('Gerando arquivo docker.compose.yml\n')
 generateFileWithPath(dockerComposeFile,data,False,True)
 
 # print('Gerando arquivo .env do ambiente docker\n')
-
 # generateFileWithPath(envFile,[
 #         "DB_HOST=db\n", 
 #         "DB_PORT=3306\n",
