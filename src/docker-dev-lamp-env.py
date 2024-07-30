@@ -12,7 +12,7 @@ mysqlDir = f'{dockerComposeDir}/mysql'
 
 appName= input("Informe o nome da aplicação (app): ").replace(" ","-").lower() or 'app'
 phpversion = input("Informe a imagem docker do php-fpm que deseja usar: ")
-gitRepoUrl = input("Informe a url do repositorio git : ")
+gitRepoUrl = input("Informe a url do repositorio git : ") or ''
 
 dockerComposeFile=f'{appName}/docker-compose.yml'
 envFile = f'{appName}/.env'
@@ -51,7 +51,7 @@ data = {
                         },
                      'image': 'mysql:5.7',
                      'networks': [f'{appName}Network'],
-                     'ports': '33306:3306',
+                     'ports': ['33306:3306'],
                      'restart': 'unless-stopped',
                      'tty': True,
                      'volumes': [
@@ -143,7 +143,7 @@ generateFileWithPath(f'{appName}/{nginxConfDir}/app.conf',"""server{
         fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
         fastcgi_param PATH_INFO $fastcgi_path_info;
         fastcgi_buffers 16 16k; 
-        fastcgi_buffer_size 32k
+        fastcgi_buffer_size 32k;
     }
     location / {
         try_files $uri $uri/ /index.php?$query_string;
@@ -160,11 +160,11 @@ max_execution_time = 5600
 post_max_size = 500M
 """)
 
-generateFileWithPath(f'{appName}/{mysqlDir}/dump.sql',"""""")
+generateFileWithPath(f'{appName}/{mysqlDir}/.gitignore',"""*.sql""")
 
-print(f'Clonando repositório {gitRepoUrl}\n')
-
-Repo.clone_from(gitRepoUrl, f"{appName}",progress=CloneProgress())
+if(gitRepoUrl)
+    print(f'Clonando repositório {gitRepoUrl}\n')
+    Repo.clone_from(gitRepoUrl, f"{appName}",progress=CloneProgress())
 
 print(f'\n Seu ambiente PHP foi criado com sucesso. Acesse a pasta {appName}\n')
 
