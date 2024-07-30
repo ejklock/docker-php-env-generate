@@ -162,7 +162,7 @@ post_max_size = 500M
 
 generateFileWithPath(f'{appName}/{mysqlDir}/.gitignore',"""*.sql""")
 
-if(gitRepoUrl)
+if gitRepoUrl:
     print(f'Clonando repositório {gitRepoUrl}\n')
     Repo.clone_from(gitRepoUrl, f"{appName}",progress=CloneProgress())
 
