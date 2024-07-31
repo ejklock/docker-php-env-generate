@@ -7,7 +7,7 @@ on:
     branches: [ master ]
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   build:
@@ -26,9 +26,7 @@ jobs:
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
     - name: Lint with flake8
       run: |
-        # stop the build if there are Python syntax errors or undefined names
         flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
-        # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
     - name: Package Application Linux
       uses: JackMcKew/pyinstaller-action-linux@main
@@ -50,11 +48,21 @@ jobs:
         name: docker-dev-lamp-windows
         path: src/dist/windows
 
+    - name: Create Tag
+      id: create_tag
+      run: |
+        VERSION=$(date +"%Y%m%d%H%M%S")
+        echo "VERSION=$VERSION" >> $GITHUB_ENV
+        git tag $VERSION
+        git push origin $VERSION
+
     - name: Create GitHub Release
       uses: softprops/action-gh-release@v1
       with:
         files: |
           src/dist/linux/**/*
           src/dist/windows/**/*
+        tag_name: ${{ env.VERSION }}
+        name: Release ${{ env.VERSION }}
       env:
         GITHUB_TOKEN: ${{ secrets.ACTIONS_SECRET_TOKEN }}
