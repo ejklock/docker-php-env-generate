@@ -26,20 +26,11 @@ This repository provides a Docker environment generator powered by Docker Compos
 * Linux [Download here](https://github.com/ejklock/docker-lamp-template-generate/suites/5962362674/artifacts/204842094)
 
 ### 2. Extract and copy the executable to your project folder and execute it via terminal (cmd, powershell, and variants)
+Get binaries on releases page 
+* Linux
+* Windows
+* Mac OS
 
-* ### Linux
-  ```
-   sudo chmod 777 docker-dev-lamp-env
-  ```
-  ```
-   ./docker-dev-lamp-env
-  ```
-
-* ### Windows
-  
-  ```
-   docker-dev-lamp-env
-  ```
   ### 3. Provide the required inputs through the prompt and the repository URL (.git at the end of the URL)
   
   1. Name and DockerHub image of php-fpm
