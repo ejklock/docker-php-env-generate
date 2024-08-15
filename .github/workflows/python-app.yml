@@ -31,26 +31,33 @@ jobs:
     - name: Package Application
       run: |
         cd src
-        pyinstaller --onefile --name docker-dev-lamp docker-dev-lamp-env.py
+        pyinstaller --onefile --name docker-dev-lamp-${{ runner.os }} docker-dev-lamp-env.py
     - uses: actions/upload-artifact@v2
       with:
         name: docker-dev-lamp-${{ runner.os }}
         path: src/dist/*
+
+  create_release:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
     - name: Create Tag
-      if: matrix.os == 'ubuntu-latest'
       id: create_tag
       run: |
-        $VERSION = Get-Date -Format "yyyyMMddHHmmss"
-        echo "VERSION=$VERSION" >> $env:GITHUB_ENV
+        VERSION=$(date +"%Y%m%d%H%M%S")
+        echo "VERSION=$VERSION" >> $GITHUB_ENV
         git tag $VERSION
         git push origin $VERSION
-      shell: pwsh
+    - name: Download all artifacts
+      uses: actions/download-artifact@v2
+      with:
+        path: artifacts
     - name: Create GitHub Release
-      if: matrix.os == 'ubuntu-latest'
       uses: softprops/action-gh-release@v1
       with:
         files: |
-          src/dist/*
+          artifacts/**/*
         tag_name: ${{ env.VERSION }}
         name: Release ${{ env.VERSION }}
       env:
