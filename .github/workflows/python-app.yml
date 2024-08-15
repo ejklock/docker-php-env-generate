@@ -30,7 +30,7 @@ jobs:
     - name: Package Application
       run: |
         cd src
-        pyinstaller --onefile --name docker-dev-lamp main.py
+        pyinstaller --onefile --name docker-dev-lamp docker-dev-lamp-env.py
     - uses: actions/upload-artifact@v2
       with:
         name: docker-dev-lamp-${{ runner.os }}
