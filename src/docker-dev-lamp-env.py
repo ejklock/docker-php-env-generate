@@ -1,108 +1,92 @@
-
 import yaml
 import os
-from git import Repo
-from git import RemoteProgress
-from tqdm import tqdm
+import subprocess
+import shutil
 
-dockerComposeDir = f'docker-compose'
+dockerComposeDir = 'docker-compose'
 nginxConfDir = f'{dockerComposeDir}/nginx'
 phpConfDir = f'{dockerComposeDir}/php-fpm'
 mysqlDir = f'{dockerComposeDir}/mysql'
 
-appName= input("Informe o nome da aplicação (app): ").replace(" ","-").lower() or 'app'
+appName = input("Informe o nome da aplicação (app): ").replace(" ","-").lower() or 'app'
 phpversion = input("Informe a imagem docker do php-fpm que deseja usar: ")
-gitRepoUrl = input("Informe a url do repositorio git : ") or ''
+gitRepoUrl = input("Informe a url do repositorio git (opcional): ") or ''
 
-dockerComposeFile=f'{appName}/docker-compose.yml'
-envFile = f'{appName}/.env'
+dockerComposeFile = 'docker-compose.yml'
+envFile = '.env'
 
 data = {
     'version': '3.7',
     'services': {
-        'app': 
-            {
-                'container_name': f'{appName}-app-dev',
-                'environment': [
-                        'COMPOSER_MEMORY_LIMIT=-1'
-                ],
-                'image': f'{phpversion}',
-                'networks': [
-                    f'{appName}Network'
-                ],
-                'restart': 'unless-stopped',
-                'volumes': [
-                    './:/var/www/app',
-                    './docker-compose/php-fpm/custom.ini:/usr/local/etc/php/conf.d/custom.ini',
-                ],
-                'working_dir': '/var/www/app'
-            },
-            'db': 
-                {
-                    'command': '--default-authentication-plugin=mysql_native_password',
-                    'container_name': f'{appName}-dev-db',
-                    'environment': {
-                        'MYSQL_DATABASE': f'{appName}',
-                        'MYSQL_PASSWORD':  f'{appName}',
-                        'MYSQL_ROOT_PASSWORD':  f'{appName}',
-                        'MYSQL_USER':  f'{appName}',
-                        'SERVICE_NAME': 'mysql',
-                        'SERVICE_TAGS': 'dev'
-                        },
-                     'image': 'mysql:5.7',
-                     'networks': [f'{appName}Network'],
-                     'ports': ['33306:3306'],
-                     'restart': 'unless-stopped',
-                     'tty': True,
-                     'volumes': [
-                         './docker-compose/mysql:/docker-entrypoint-initdb.d',
-                         f'{appName}MysqlData:/var/lib/mysql'
-                         ]
-                },
-              'nginx': 
-                {
-                    'container_name': f'{appName}-dev-nginx',
-                    'image': 'nginx:alpine',
-                    'networks': [f'{appName}Network'],
-                    'ports': ['8000:80'],
-                    'restart': 'unless-stopped',
-                    'volumes': [
-                        './:/var/www/app',
-                        './docker-compose/nginx:/etc/nginx/conf.d/'
-                    ],
-                    'working_dir': '/var/www/app'
-                }
-            },
-    'networks':{
-        f'{appName}Network':{
-            'driver':'bridge'
+        'app': {
+            'container_name': f'{appName}-app-dev',
+            'environment': [
+                'COMPOSER_MEMORY_LIMIT=-1'
+            ],
+            'image': f'{phpversion}',
+            'networks': [
+                f'{appName}Network'
+            ],
+            'restart': 'unless-stopped',
+            'volumes': [
+                './:/var/www/app',
+                './docker-compose/php-fpm/custom.ini:/usr/local/etc/php/conf.d/custom.ini',
+            ],
+            'working_dir': '/var/www/app'
         },
-       
+        'db': {
+            'command': '--default-authentication-plugin=mysql_native_password',
+            'container_name': f'{appName}-dev-db',
+            'environment': {
+                'MYSQL_DATABASE': f'{appName}',
+                'MYSQL_PASSWORD':  f'{appName}',
+                'MYSQL_ROOT_PASSWORD':  f'{appName}',
+                'MYSQL_USER':  f'{appName}',
+                'SERVICE_NAME': 'mysql',
+                'SERVICE_TAGS': 'dev'
+            },
+            'image': 'mysql:5.7',
+            'networks': [f'{appName}Network'],
+            'ports': ['33306:3306'],
+            'restart': 'unless-stopped',
+            'tty': True,
+            'volumes': [
+                './docker-compose/mysql:/docker-entrypoint-initdb.d',
+                f'{appName}MysqlData:/var/lib/mysql'
+            ]
+        },
+        'nginx': {
+            'container_name': f'{appName}-dev-nginx',
+            'image': 'nginx:alpine',
+            'networks': [f'{appName}Network'],
+            'ports': ['8000:80'],
+            'restart': 'unless-stopped',
+            'volumes': [
+                './:/var/www/app',
+                './docker-compose/nginx:/etc/nginx/conf.d/'
+            ],
+            'working_dir': '/var/www/app'
+        }
+    },
+    'networks': {
+        f'{appName}Network': {
+            'driver': 'bridge'
+        },
     },
     'volumes': {
         f'{appName}MysqlData': {
             'driver': 'local',
             'name': f'{appName}MysqlData'
         }
-    }}
-    
-## Source: https://localcoder.org/python-progress-bar-for-git-clone
+    }
+}
 
-class CloneProgress(RemoteProgress):
-    def __init__(self):
-        super().__init__()
-        self.pbar = tqdm()
-
-    def update(self, op_code, cur_count, max_count=None, message=''):
-        self.pbar.total = max_count
-        self.pbar.n = cur_count
-        self.pbar.refresh()
-
-
-def generateFileWithPath(path,content,lines=False,isYaml=False):
-    os.makedirs(os.path.dirname(path),exist_ok=True)
+def generateFileWithPath(path, content, lines=False, isYaml=False):
+    dir_path = os.path.dirname(path)
+    if dir_path:
+        os.makedirs(dir_path, exist_ok=True)
     with open(path, 'w') as f:
-        if not(isYaml):
+        if not isYaml:
             if lines:
                 f.writelines(content)
             else:
@@ -110,24 +94,41 @@ def generateFileWithPath(path,content,lines=False,isYaml=False):
         else:
             yaml.dump(content, f, default_flow_style=False, sort_keys=False)
 
+def clone_repository(url, path):
+    print(f'Clonando repositório {url} para {path}\n')
+    try:
+        process = subprocess.Popen(['git', 'clone', url, path],
+                                   stdout=subprocess.PIPE,
+                                   stderr=subprocess.PIPE,
+                                   universal_newlines=True)
+        
+        for line in process.stdout:
+            print(line, end='')
+        
+        for line in process.stderr:
+            print(line, end='')
+        
+        process.wait()
+        
+        if process.returncode != 0:
+            print(f'\nErro ao clonar repositório. Código de saída: {process.returncode}')
+            return False
+        else:
+            print(f'\nRepositório clonado com sucesso.')
+            return True
+    except Exception as e:
+        print(f'\nErro ao clonar repositório: {e}')
+        return False
 
-print('Gerando arquivo docker.compose.yml\n')
+# Criar a pasta do app
+os.makedirs(appName, exist_ok=True)
+os.chdir(appName)
 
-generateFileWithPath(dockerComposeFile,data,False,True)
-
-# print('Gerando arquivo .env do ambiente docker\n')
-# generateFileWithPath(envFile,[
-#         "DB_HOST=db\n", 
-#         "DB_PORT=3306\n",
-#         "DB_EXTERNAL_PORT=33306\n",
-#         f"DB_DATABASE={appName}\n",
-#         f"DB_USERNAME={appName}\n",
-#         f'DB_PASSWORD={appName}\n',
-#         ],True)
+print('Gerando arquivo docker-compose.yml\n')
+generateFileWithPath(dockerComposeFile, data, False, True)
 
 print('Criando app.conf do nginx\n')
-
-generateFileWithPath(f'{appName}/{nginxConfDir}/app.conf',"""server{
+generateFileWithPath(f'{nginxConfDir}/app.conf', """server {
     listen 80;
     client_max_body_size 0;
     index index.php index.html;
@@ -151,22 +152,33 @@ generateFileWithPath(f'{appName}/{nginxConfDir}/app.conf',"""server{
     }
 }""")
 
-
 print('Criando config do php\n')
-
-generateFileWithPath(f'{appName}/{phpConfDir}/custom.ini',"""memory_limit = 4096M
+generateFileWithPath(f'{phpConfDir}/custom.ini', """memory_limit = 4096M
 upload_max_filesize = 500m
 max_execution_time = 5600
 post_max_size = 500M
 """)
 
-generateFileWithPath(f'{appName}/{mysqlDir}/.gitignore',"""*.sql""")
+generateFileWithPath(f'{mysqlDir}/.gitignore', """*.sql""")
 
+# Clonar o repositório Git, se fornecido
 if gitRepoUrl:
-    print(f'Clonando repositório {gitRepoUrl}\n')
-    Repo.clone_from(gitRepoUrl, f"{appName}",progress=CloneProgress())
+    print("Clonando repositório Git...")
+    temp_dir = 'temp_git_clone'
+    if clone_repository(gitRepoUrl, temp_dir):
+        # Mover conteúdo do repositório para a raiz do projeto
+        for item in os.listdir(temp_dir):
+            s = os.path.join(temp_dir, item)
+            d = os.path.join('.', item)
+            if os.path.isdir(s):
+                shutil.move(s, d)
+            else:
+                shutil.copy2(s, d)
+        shutil.rmtree(temp_dir)
+        print("Conteúdo do repositório Git movido para a pasta do projeto.")
+    else:
+        print("Falha ao clonar o repositório. A estrutura Docker foi criada sem o conteúdo do Git.")
+else:
+    print("Nenhum repositório Git fornecido. Estrutura Docker criada sem conteúdo do Git.")
 
-print(f'\n Seu ambiente PHP foi criado com sucesso. Acesse a pasta {appName}\n')
-
-
-##os.system(f"git clone {gitRepoUrl} {appName}")
+print(f'\nSeu ambiente PHP foi criado com sucesso na pasta {appName}. A estrutura Docker LAMP está pronta para uso.\n')
